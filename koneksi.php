@@ -1,16 +1,13 @@
 <?php
+// db.php
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "reservasihoteldb";
+$database = "reservasihoteldb";
 
+$db = new mysqli($servername, $username, $password, $database);
 
-
-// Membuat koneksi ke database
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Mengecek koneksi
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if ($db->connect_error) {
+    die("Koneksi gagal: " . $db->connect_error);
 }
 ?>
