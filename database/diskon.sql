@@ -1,3 +1,4 @@
+--adding discount
 DELIMITER //
 CREATE FUNCTION HitungTotalSetelahDiskon(totalPembayaran DECIMAL(15,2)) 
 RETURNS DECIMAL(15,2)
