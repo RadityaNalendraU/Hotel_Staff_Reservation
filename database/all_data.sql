@@ -4,7 +4,6 @@ CREATE DATABASE IF NOT EXISTS ReservasiHotelDB;
 USE ReservasiHotelDB;
 
 -- Membuat tabel Tamu
-ENGINE=InnoDb;
 CREATE TABLE Tamu (
     no_telepon VARCHAR(15) NOT NULL,
     nama VARCHAR(30) NOT NULL,
@@ -33,7 +32,7 @@ CREATE TABLE Reservasi (
     no_kamar VARCHAR(3),
     tanggal_check_in DATE NOT NULL,
     tanggal_check_out DATE NOT NULL,
-    status_reservasi varchar(9) NOT NULL DEFAULT 'Belum Lunas',
+    status_reservasi varchar(20) NOT NULL DEFAULT 'Belum Lunas',
     primary key  (id_reservasi),
     FOREIGN KEY (no_telepon) REFERENCES Tamu(no_telepon),
     FOREIGN KEY (no_kamar) REFERENCES Kamar(no_kamar)
