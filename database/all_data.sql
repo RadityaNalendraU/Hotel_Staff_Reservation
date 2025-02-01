@@ -61,6 +61,7 @@ CREATE TABLE log_reservasi (
 )
 ENGINE=InnoDb;
 
+
 -- Memasukkan data ke tabel Tamu
 INSERT INTO Tamu (no_telepon, nama, email, alamat) VALUES
 ('01222333344444', 'Hwang Ye-ji', 'yeji@example.com', 'Seoul 23-1, Mapo-gu, Sangsu-dong'),
