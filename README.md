@@ -6,13 +6,13 @@ Tiap kontributor hanya boleh mengubah halaman masing-masing dan tidak boleh meng
 ### Clone Repository
 
 ```bash
-git clone https://github.com/DewaTriWijaya/web_admin_laundry.git
+git clone https://github.com/RadityaNalendraU/Hotel_Staff_Reservation.git
 ```
 
 ### Clone Repository dari branch main_dev
 
 ```bash
-git clone -b main_dev https://github.com/DewaTriWijaya/web_admin_laundry.git
+git clone -b "branch" https://github.com/RadityaNalendraU/Hotel_Staff_Reservation.git
 ```
 
 ### Cek Koneksi Remote
