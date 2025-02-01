@@ -53,7 +53,7 @@
      <div class="mb-4">
       <input class="w-full p-2 rounded bg-green-600 placeholder-white" placeholder="Search" type="text"/>
      </div>
-     <div class="mb-4 sidebar-item" data-target="hotel_xyz.php">
+     <div class="mb-4 sidebar-item" data-target="reservasi.php">
       <div class="font-bold">
        <i class="fas fa-hotel mr-2"></i> Hotel XYZ
       </div>
