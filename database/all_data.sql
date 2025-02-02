@@ -53,10 +53,11 @@ ENGINE=InnoDb;
 
 CREATE TABLE log_reservasi (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_reservasi VARCHAR(4),
     id_pembayaran INT,
-    total_pembayaran DECIMAL(10, 2),
     tanggal_dihapus DATETIME,
-    id_reservasi VARCHAR(4)
+    total_pembayaran DECIMAL(10, 2)
+    
 )
 ENGINE=InnoDb;
 
