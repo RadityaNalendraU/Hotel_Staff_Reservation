@@ -64,7 +64,7 @@
     <div class="flex justify-center items-center min-h-screen">
         <div class="bg-white p-8 rounded shadow-md w-full max-w-4xl">
             <h2 class="text-2xl font-bold mb-6">Daftar Tamu</h2>
-            <div class="overflow-x-auto mb-4">
+            <div class="overflow-x-auto max-h-60 overflow-y-auto mb-4 border rounded">
                 <table class="min-w-full bg-white">
                     <thead>
                         <tr>
