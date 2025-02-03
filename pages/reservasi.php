@@ -1,3 +1,4 @@
+<?php require 'koneksi.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -22,11 +23,8 @@
 
     <!-- Tipe Kamar -->
     <label class="block mt-4 mb-2 font-semibold">Tipe Kamar</label>
-    <select id="room-type" class="w-full p-2 border rounded-md">
+    <select id="room-type" class="w-full p-2 border rounded-md" onchange="fetchAvailableRooms()">
         <option value="">Pilih Tipe Kamar</option>
-        <option>Standard</option>
-        <option>Deluxe</option>
-        <option>Suite</option>
     </select>
 
     <!-- Nomor Kamar -->
@@ -70,6 +68,23 @@
 
 <!-- JavaScript -->
 <script>
+    // Fetch room types on page load
+    window.onload = function() {
+        fetch('fetch_rooms.php?get_types=true')
+            .then(response => response.json())
+            .then(data => {
+                let roomTypeSelect = document.getElementById("room-type");
+                roomTypeSelect.innerHTML = '<option value="">Pilih Tipe Kamar</option>'; // Clear previous options
+                data.forEach(type => {
+                    let option = document.createElement("option");
+                    option.value = type;
+                    option.textContent = type;
+                    roomTypeSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching room types:', error));
+    };
+
     function searchPhone() {
         let phone = document.getElementById("phone-input").value;
         // AJAX call to check_phone.php
@@ -85,6 +100,39 @@
                     };
                 }
             });
+    }
+
+    function fetchAvailableRooms() {
+        let roomType = document.getElementById("room-type").value;
+        if (roomType) {
+            fetch('fetch_rooms.php?type=' + roomType)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data); // Log the response data for debugging
+                    let roomNumberSelect = document.getElementById("room-number");
+                    roomNumberSelect.innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Clear previous options
+                    if (data.length === 0) {
+                        console.error('No available rooms found for this type.');
+                    } else {
+                        data.forEach(room => {
+                            let option = document.createElement("option");
+                            option.value = room.no_kamar;
+                            option.textContent = room.no_kamar;
+                            roomNumberSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching rooms:', error); // Log any errors
+                });
+        } else {
+            document.getElementById("room-number").innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Reset if no room type selected
+        }
     }
 
     function saveData() {
