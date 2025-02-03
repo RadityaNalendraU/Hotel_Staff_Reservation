@@ -7,7 +7,7 @@ USE ReservasiHotelDB;
 CREATE TABLE Tamu (
     no_telepon VARCHAR(15) NOT NULL,
     nama VARCHAR(30) NOT NULL,
-    alamat TEXT NOT NULL, 
+    alamat TEXT, 
     email VARCHAR(30) NOT NULL UNIQUE,
     loyalitas Varchar(40) NOT NULL DEFAULT "Brnoze",
     total_pengeluaran INT (11),
