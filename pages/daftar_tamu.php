@@ -8,7 +8,27 @@
     <?php
     include 'koneksi.php';
 
-    $query = "SELECT  no_telepon, nama, email, alamat, loyalitas FROM tamu";
+    // Handle update request
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update-no_telepon'])) {
+        $no_telepon = $_POST['update-no_telepon'];
+        $nama = $_POST['update-nama'];
+        $alamat = $_POST['update-alamat'];
+        $email = $_POST['update-email'];
+        
+        $updateQuery = "CALL UpdateTamu(?, ?, ?, ?)";
+        $stmt = $db->prepare($updateQuery);
+        $stmt->bind_param("ssss", $no_telepon, $nama, $email, $alamat);
+        
+        if ($stmt->execute()) {
+            // Successfully updated
+        } else {
+            die("Update failed: " . $stmt->error);
+        }
+        
+        $stmt->close();
+    }
+
+    $query = "SELECT no_telepon, nama, email, alamat, loyalitas FROM tamu";
     $result = mysqli_query($db, $query);
 
     if (!$result) {
@@ -17,19 +37,15 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search-input'])) {
         $searchTerm = $_POST['search-input'];
-    
-        // Panggil stored procedure
         $stmt = $db->prepare("CALL SearchTamu(?)");
         $stmt->bind_param("s", $searchTerm);
         $stmt->execute();
-        
         $result = $stmt->get_result();
     } else {
-        // Jika tidak ada pencarian, tampilkan semua data
         $query = "SELECT no_telepon, nama, email, alamat, loyalitas FROM tamu";
         $result = mysqli_query($db, $query);
     }
-    
+
     if (!$result) {
         die("Query gagal: " . mysqli_error($db));
     }
@@ -40,8 +56,6 @@
             const modal = document.getElementById('modal');
             const modalClose = document.getElementById('modal-close');
             const updateForm = document.getElementById('update-form');
-            const searchButton = document.getElementById('search-button');
-            const searchInput = document.getElementById('search-input');
             let currentRow;
 
             tableBody.addEventListener('click', function (event) {
@@ -71,14 +85,9 @@
 
             updateForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                currentRow.cells[1].textContent = document.getElementById('update-no_telepon').value;
-                currentRow.cells[3].textContent = document.getElementById('update-nama').value;
-                currentRow.cells[4].textContent = document.getElementById('update-alamat').value;
-                currentRow.cells[5].textContent = document.getElementById('update-email').value;
-                currentRow.cells[5].textContent = document.getElementById('update-loyalitas').value;
-                modal.classList.add('hidden');
+                updateForm.submit(); // Submit the form to update the database
             });
-            });
+        });
     </script>
 </head>
 <center>
@@ -88,8 +97,8 @@
             <h2 class="text-2xl font-bold">Daftar Tamu</h2>
             <div class="flex items-center">
                 <form method="POST">
-                <input id="search-input" name="search-input" type="text" placeholder="Cari Nama Tamu" class="border p-2 rounded-lg mr-2">
-                <button type="submit" id="search-button" class="bg-green-500 text-white px-4 py-2 rounded-lg">Search</button>
+                    <input id="search-input" name="search-input" type="text" placeholder="Cari Nama Tamu" class="border p-2 rounded-lg mr-2">
+                    <button type="submit" id="search-button" class="bg-green-500 text-white px-4 py-2 rounded-lg">Search</button>
                 </form>
             </div>
         </div>
@@ -101,13 +110,13 @@
                         <th class="py-2 px-4 border">Nama Tamu</th>
                         <th class="py-2 px-4 border">Email</th>
                         <th class="py-2 px-4 border">Alamat</th>
-                        <th class="py-2 px-4 border">loyalitas</th>
+                        <th class="py-2 px-4 border">Loyalitas</th>
                         <th class="py-2 px-4 border">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (mysqli_num_rows($result) > 0) : ?>
-                    <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+                        <?php while ($row = mysqli_fetch_assoc($result)) : ?>
                             <tr data-no_telepon="<?= $row['no_telepon'] ?>" 
                                 data-nama="<?= $row['nama'] ?>" 
                                 data-email="<?= $row['email'] ?>" 
@@ -118,19 +127,19 @@
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['email']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['alamat']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['loyalitas']) ?></td>
-
                                 <td class="py-2 px-4 border-b">
-                                    <button class="update-button bg-green-500 text-white px-3 py-1 rounded-lg">Update</button>
-                                    <button class="delete-button bg-red-500 text-white px-3 py-1 rounded-lg">Delete</button>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                        <?php else : ?>
-                            <tr>
-                                <td colspan="6" class="py-2 px-4 text-center text-gray-500">Tidak ada tamu yang ditemukan.</td>
+                                    <div class="flex space-x-2">
+                                        <button class="update-button bg-green-500 text-white px-3 py-1 rounded-lg">Update</button>
+                                        <button class="delete-button bg-red-500 text-white px-3 py-1 rounded-lg">Delete</button>
+                                    </div>
+                                </td>
                             </tr>
-                        <?php endif; ?>
-                    <!-- Add more rows as needed -->
+                        <?php endwhile; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="6" class="py-2 px-4 text-center text-gray-500">Tidak ada tamu yang ditemukan.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -140,20 +149,19 @@
     <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-4 text-center">Update Data</h2>
-            <form id="update-form">
-                <label class="block font-medium">Nomor Telepon:</label>
-                <input id="update-no_telepon" name="update-no_telepon" type="text" class="border p-2 w-full mb-2 rounded">
+            <form id="update-form" method="POST">
+                <input id="update-no_telepon" name="update-no_telepon" type="hidden" class="border p-2 w-full mb-2 rounded">
 
                 <label class="block font-medium">Nama Tamu:</label>
-                <input id="update-nama" name="update-nama" type="text" class="border p-2 w-full mb-2 rounded">
+                <input id="update-nama" name="update-nama" type="text" class="border p-2 w-full mb-2 rounded" required>
 
                 <label class="block font-medium">Alamat:</label>
-                <input id="update-alamat" name="update-alamat" type="text" class="border p-2 w-full mb-2 rounded">
+                <input id="update-alamat" name="update-alamat" type="text" class="border p-2 w-full mb-2 rounded" required>
 
                 <label class="block font-medium">Email:</label>
-                <input id="update-email" name="update-email" type="text" class="border p-2 w-full mb-2 rounded">
+                <input id="update-email" name="update-email" type="text" class="border p-2 w-full mb-2 rounded" required>
 
-                <label class="block font-medium">loyalitas:</label>
+                <label class="block font-medium">Loyalitas:</label>
                 <input id="update-loyalitas" type="text" class="border p-2 w-full mb-2 rounded" disabled>
 
                 <div class="flex justify-end mt-4">
