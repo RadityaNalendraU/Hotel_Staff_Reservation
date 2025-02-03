@@ -29,3 +29,47 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+
+
+DELIMITER //
+
+CREATE TRIGGER before_delete_reservasi
+BEFORE DELETE ON reservasi
+FOR EACH ROW
+BEGIN
+    DECLARE v_id_pembayaran INT DEFAULT NULL;
+    DECLARE v_total_pembayaran DECIMAL(10,2) DEFAULT NULL;
+
+    -- Mengambil nilai dari tabel pembayaran
+    SELECT id_pembayaran, total_pembayaran 
+    INTO v_id_pembayaran, v_total_pembayaran
+    FROM pembayaran
+    WHERE id_reservasi = OLD.id_reservasi
+    LIMIT 1;
+
+    -- Jika data ditemukan, simpan ke log_reservasi
+    IF v_id_pembayaran IS NOT NULL THEN
+        INSERT INTO log_reservasi (id_reservasi, id_pembayaran, tanggal_dihapus, total_pembayaran)
+        VALUES (OLD.id_reservasi, v_id_pembayaran, NOW(), v_total_pembayaran);
+    ELSE
+        -- Jika tidak ditemukan, tetap simpan dengan NULL
+        INSERT INTO log_reservasi (id_reservasi, id_pembayaran, tanggal_dihapus, total_pembayaran)
+        VALUES (OLD.id_reservasi, NULL, NOW(), NULL);
+    END IF;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER after_insert_reservasi
+AFTER INSERT ON reservasi
+FOR EACH ROW
+BEGIN
+    -- Insert data ke tabel pembayaran dengan nilai default
+    INSERT INTO pembayaran (id_reservasi,no_telepon, tanggal_pembayaran, total_pembayaran)
+    VALUES (NEW.id_reservasi,NEW.no_telepon , NOW(), NEW.total_pembayaran);
+END //
+
+DELIMITER ;

@@ -233,3 +233,182 @@ INSERT INTO Pembayaran (id_reservasi, no_telepon, tanggal_pembayaran, total_pemb
 (38,'6667778889','2024-10-26', 3000000),
 (39,'7778889990','2024-10-27', 1600000),
 (40,'8889990001','2024-10-30', 1000000);
+
+--procedure tambah tamu
+DELIMITER //
+
+CREATE PROCEDURE InsertTamu(
+    IN p_no_telepon VARCHAR(15),
+    IN p_nama VARCHAR(100),
+    IN p_email VARCHAR(100),
+    IN p_alamat TEXT
+)
+BEGIN
+    INSERT INTO tamu (no_telepon, nama, email, alamat) 
+    VALUES (p_no_telepon, p_nama, p_email, p_alamat);
+END //
+
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE SearchTamu(IN p_search VARCHAR(100))
+BEGIN
+    SELECT * FROM tamu
+    WHERE no_telepon LIKE CONCAT('%', p_search, '%')
+       OR nama LIKE CONCAT('%', p_search, '%')
+       OR email LIKE CONCAT('%', p_search, '%')
+       OR alamat LIKE CONCAT('%', p_search, '%');
+END //
+
+DELIMITER ;
+
+--trigger update status kamar
+DELIMITER //
+CREATE TRIGGER after_reservasi_insert
+AFTER INSERT ON Reservasi
+FOR EACH ROW
+BEGIN
+    UPDATE Kamar
+    SET status_kamar = 'Penuh'
+    WHERE no_kamar = NEW.no_kamar;
+END //
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER after_reservasi_delete
+AFTER DELETE ON Reservasi
+FOR EACH ROW
+BEGIN
+    UPDATE Kamar
+    SET status_kamar = 'Tersedia'
+    WHERE no_kamar = OLD.no_kamar;
+END //
+
+DELIMITER ;
+
+--procedure update tamu
+DELIMITER //
+CREATE PROCEDURE UpdateTamu(
+    IN p_no_telepon VARCHAR(15),
+    IN p_nama VARCHAR(100),
+    IN p_email VARCHAR(100),
+    IN p_alamat TEXT
+)
+BEGIN
+    UPDATE tamu 
+    SET nama = p_nama, 
+        email = p_email, 
+        alamat = p_alamat
+    WHERE no_telepon = p_no_telepon;
+END //
+DELIMITER ;
+
+-- function unntuk melihat loyalitas tamu
+DELIMITER //
+CREATE FUNCTION KategoriLoyalitasTamu(noTelepon VARCHAR(15)) 
+RETURNS VARCHAR(10)
+DETERMINISTIC
+BEGIN
+    DECLARE totalPembayaran DECIMAL(15,2);
+    DECLARE kategori VARCHAR(10);
+
+    -- Ambil total pembayaran tamu berdasarkan nomor telepon
+    SELECT SUM(total_pembayaran) INTO totalPembayaran 
+    FROM Pembayaran 
+    WHERE no_telepon = noTelepon;
+    
+    -- Beri kategori loyalitas berdasarkan total pembayaran
+    IF totalPembayaran > 10000000 THEN
+        SET kategori = 'Platinum';
+    ELSEIF totalPembayaran >= 5000000 THEN
+        SET kategori = 'Gold';
+    ELSEIF totalPembayaran >= 2000000 THEN
+        SET kategori = 'Silver';
+    ELSE
+        SET kategori = 'Bronze';
+    END IF;
+    
+    RETURN kategori;
+END //
+DELIMITER ;
+
+-- trigger untuk meng update loyalitas tamu
+DELIMITER //
+
+CREATE TRIGGER UpdateLoyalitasTamu
+AFTER INSERT ON Pembayaran
+FOR EACH ROW
+BEGIN
+    DECLARE kategori VARCHAR(10);
+
+    -- Panggil Stored Function untuk menentukan kategori loyalitas
+    SET kategori = KategoriLoyalitasTamu(NEW.no_telepon);
+
+    -- Update kategori loyalitas pada tabel Tamu
+    UPDATE Tamu 
+    SET loyalitas = kategori
+    WHERE no_telepon = NEW.no_telepon;
+END;
+//
+DELIMITER ;
+
+
+--trigger untuk meng update total pengeluaran tamu
+DELIMITER //
+CREATE TRIGGER UpdateTotalPengeluaranTamu
+AFTER INSERT ON Pembayaran
+FOR EACH ROW
+BEGIN
+    -- Update total_pengeluaran pada tabel Tamu
+    UPDATE Tamu 
+    SET total_pengeluaran = total_pengeluaran + NEW.total_pembayaran
+    WHERE no_telepon = NEW.no_telepon;
+END;
+//
+DELIMITER ;
+
+
+
+--memasukan data reservasi yang lama ke dalam log_reservasi
+
+DELIMITER //
+
+CREATE TRIGGER before_delete_reservasi
+BEFORE DELETE ON reservasi
+FOR EACH ROW
+BEGIN
+    DECLARE v_id_pembayaran INT;
+    DECLARE v_total_pembayaran DECIMAL(10,2);
+
+    -- Mengambil nilai dari tabel pembayaran
+    SELECT id_pembayaran, total_pembayaran INTO v_id_pembayaran, v_total_pembayaran
+    FROM pembayaran
+    WHERE id_reservasi = OLD.id_reservasi
+    LIMIT 1;
+
+    -- Jika tidak ditemukan, atur nilai default (menghindari NULL)
+    SET v_id_pembayaran = IFNULL(v_id_pembayaran, 0);
+    SET v_total_pembayaran = IFNULL(v_total_pembayaran, 0);
+
+    -- Masukkan data ke log_reservasi
+    INSERT INTO log_reservasi (id_reservasi, id_pembayaran, tanggal_dihapus, total_pembayaran)
+    VALUES (OLD.id_reservasi, v_id_pembayaran, NOW(), v_total_pembayaran);
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetReservations(IN startDate DATETIME, IN endDate DATETIME)
+BEGIN
+    IF endDate IS NOT NULL THEN
+        SELECT * FROM log_reservasi
+        WHERE tanggal_dihapus >= startDate AND tanggal_dihapus <= endDate;
+    ELSE
+        SELECT * FROM log_reservasi
+        WHERE tanggal_dihapus = startDate;
+    END IF;
+END //
+
+DELIMITER ;
