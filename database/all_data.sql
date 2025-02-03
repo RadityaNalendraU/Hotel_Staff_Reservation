@@ -36,6 +36,7 @@ CREATE TABLE Reservasi (
     primary key  (id_reservasi),
     FOREIGN KEY (no_telepon) REFERENCES Tamu(no_telepon),
     FOREIGN KEY (no_kamar) REFERENCES Kamar(no_kamar)
+    
 )
 ENGINE=InnoDb;
 
@@ -53,11 +54,10 @@ ENGINE=InnoDb;
 
 CREATE TABLE log_reservasi (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
-    id_reservasi VARCHAR(4),
+    id_reservasi int,
     id_pembayaran INT,
     tanggal_dihapus DATETIME,
     total_pembayaran DECIMAL(10, 2)
-    
 )
 ENGINE=InnoDb;
 
