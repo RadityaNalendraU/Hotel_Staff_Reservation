@@ -22,9 +22,9 @@
 
     <!-- Tipe Kamar -->
     <label class="block mt-4 mb-2 font-semibold">Tipe Kamar</label>
-    <select id="room-type" class="w-full p-2 border rounded-md" onchange="fetchAvailableRooms()">
+    <select id="room-type" class="w-full p-2 border rounded-md">
         <option value="">Pilih Tipe Kamar</option>
-        <option>Standar</option>
+        <option>Standard</option>
         <option>Deluxe</option>
         <option>Suite</option>
     </select>
@@ -72,45 +72,19 @@
 <script>
     function searchPhone() {
         let phone = document.getElementById("phone-input").value;
-
-        fetch('check_phone.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'no_telepon=' + encodeURIComponent(phone)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.available) {
-                showPopup("✅ Nomor telepon tersedia!");
-            } else {
-                showPopup("❌ Nomor telepon belum tersedia.");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    function fetchAvailableRooms() {
-        let roomType = document.getElementById("room-type").value;
-        if (roomType) {
-            fetch('fetch_rooms.php?type=' + roomType)
-                .then(response => response.json())
-                .then(data => {
-                    let roomNumberSelect = document.getElementById("room-number");
-                    roomNumberSelect.innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Clear previous options
-                    data.forEach(room => {
-                        let option = document.createElement("option");
-                        option.value = room.no_kamar;
-                        option.textContent = room.no_kamar;
-                        roomNumberSelect.appendChild(option);
-                    });
-                });
-        } else {
-            document.getElementById("room-number").innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Reset if no room type selected
-        }
+        // AJAX call to check_phone.php
+        fetch('check_phone.php?phone=' + phone)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    showPopup("✅ Nomor telepon tersedia!");
+                } else {
+                    showPopup("❌ Nomor telepon belum tersedia.");
+                    document.getElementById("popup").onclick = function() {
+                        window.location.href = "index.php?page=pendaftaran";
+                    };
+                }
+            });
     }
 
     function saveData() {
@@ -137,10 +111,6 @@
     }
 
     function closePopup() {
-        let message = document.getElementById("popup-message").innerText;
-        if (message.includes("❌")) {
-            window.location.href = "pendaftaran.php"; // Redirect to pendaftaran.php
-        }
         document.getElementById("popup").classList.add("hidden");
     }
 </script>
