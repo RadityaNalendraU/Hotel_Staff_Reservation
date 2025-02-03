@@ -1,3 +1,4 @@
+-- function unntuk melihat loyalitas tamu
 DELIMITER //
 CREATE FUNCTION KategoriLoyalitasTamu(noTelepon VARCHAR(15)) 
 RETURNS VARCHAR(10)
@@ -26,6 +27,7 @@ BEGIN
 END //
 DELIMITER ;
 
+-- trigger untuk meng update loyalitas tamu
 DELIMITER //
 
 CREATE TRIGGER UpdateLoyalitasTamu
@@ -46,38 +48,7 @@ END;
 DELIMITER ;
 
 
-DELIMITER //
-CREATE TRIGGER UpdateLoyalitasTamu
-AFTER INSERT ON Pembayaran
-FOR EACH ROW
-BEGIN
-    DECLARE totalPembayaran DECIMAL(15,2);
-    DECLARE kategori VARCHAR(10);
-
-    -- Hitung total pembayaran tamu berdasarkan nomor telepon
-    SELECT SUM(total_pembayaran) INTO totalPembayaran 
-    FROM Pembayaran 
-    WHERE no_telepon = NEW.no_telepon;
-
-    -- Tentukan kategori loyalitas berdasarkan total pembayaran
-    IF totalPembayaran > 10000000 THEN
-        SET kategori = 'Platinum';
-    ELSEIF totalPembayaran >= 5000000 THEN
-        SET kategori = 'Gold';
-    ELSEIF totalPembayaran >= 2000000 THEN
-        SET kategori = 'Silver';
-    ELSE
-        SET kategori = 'Bronze';
-    END IF;
-
-    -- Update kategori loyalitas pada tabel Tamu
-    UPDATE Tamu 
-    SET loyalitas = kategori
-    WHERE no_telepon = NEW.no_telepon;
-END;
-//
-DELIMITER ;
-
+--trigger untuk meng update total pengeluaran tamu
 DELIMITER //
 CREATE TRIGGER UpdateTotalPengeluaranTamu
 AFTER INSERT ON Pembayaran
