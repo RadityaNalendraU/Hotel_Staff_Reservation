@@ -4,8 +4,8 @@ require 'pages/koneksi.php';
 if (isset($_GET['type'])) {
     $roomType = $_GET['type'];
 
-    // Prepare SQL query to fetch available rooms
-    $query = "SELECT no_kamar FROM Kamar WHERE tipe_kamar = ? AND status_kamar = 'Tersedia'";
+    // Prepare SQL query to fetch available rooms and their prices
+    $query = "SELECT no_kamar, harga_per_malam FROM Kamar WHERE tipe_kamar = ? AND status_kamar = 'Tersedia'";
     $stmt = $db->prepare($query);
     $stmt->bind_param("s", $roomType);
     $stmt->execute();

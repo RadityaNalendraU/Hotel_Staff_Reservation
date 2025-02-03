@@ -35,11 +35,11 @@
 
     <!-- Check-in -->
     <label class="block mt-4 mb-2 font-semibold">Check-in</label>
-    <input id="checkin" type="date" class="w-full p-2 border rounded-md">
+    <input id="checkin" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
 
     <!-- Check-out -->
     <label class="block mt-4 mb-2 font-semibold">Check-out</label>
-    <input id="checkout" type="date" class="w-full p-2 border rounded-md">
+    <input id="checkout" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
 
     <!-- Total Biaya -->
     <label class="block mt-4 mb-2 font-semibold">Total Biaya</label>
@@ -113,25 +113,42 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data); // Log the response data for debugging
                     let roomNumberSelect = document.getElementById("room-number");
                     roomNumberSelect.innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Clear previous options
-                    if (data.length === 0) {
-                        console.error('No available rooms found for this type.');
-                    } else {
-                        data.forEach(room => {
-                            let option = document.createElement("option");
-                            option.value = room.no_kamar;
-                            option.textContent = room.no_kamar;
-                            roomNumberSelect.appendChild(option);
-                        });
-                    }
+                    data.forEach(room => {
+                        let option = document.createElement("option");
+                        option.value = room.no_kamar;
+                        option.textContent = room.no_kamar;
+                        roomNumberSelect.appendChild(option);
+                    });
                 })
                 .catch(error => {
-                    console.error('Error fetching rooms:', error); // Log any errors
+                    console.error('Error fetching rooms:', error);
                 });
         } else {
             document.getElementById("room-number").innerHTML = '<option value="">Pilih Nomor Kamar</option>'; // Reset if no room type selected
+        }
+    }
+
+    function calculateTotalCost() {
+        const checkinDate = new Date(document.getElementById("checkin").value);
+        const checkoutDate = new Date(document.getElementById("checkout").value);
+        const roomType = document.getElementById("room-type").value;
+
+        if (checkinDate && checkoutDate && roomType) {
+            const timeDifference = checkoutDate - checkinDate;
+            const numberOfNights = Math.max(1, timeDifference / (1000 * 3600 * 24)); // Ensure at least 1 night
+
+            fetch('fetch_rooms.php?type=' + roomType)
+                .then(response => response.json())
+                .then(data => {
+                    const pricePerNight = data[0].harga_per_malam; // Assuming the first result contains the price
+                    const totalCost = numberOfNights * pricePerNight;
+                    document.getElementById("total-cost").value = "Rp " + totalCost.toFixed(2);
+                })
+                .catch(error => console.error('Error fetching room price:', error));
+        } else {
+            document.getElementById("total-cost").value = "Rp 0";
         }
     }
 
@@ -155,7 +172,7 @@
     function showPopup(message) {
         let popup = document.getElementById("popup");
         document.getElementById("popup-message").innerText = message;
-        popup.classList.remove("hidden"); // Pastikan popup tidak tersembunyi
+        popup.classList.remove("hidden");
     }
 
     function closePopup() {
@@ -165,3 +182,43 @@
 
 </body>
 </html>
+
+<?php
+require 'pages/koneksi.php';
+
+if (isset($_GET['type'])) {
+    $roomType = $_GET['type'];
+
+    // Prepare SQL query to fetch available rooms and their prices
+    $query = "SELECT no_kamar, harga_per_malam FROM Kamar WHERE tipe_kamar = ? AND status_kamar = 'Tersedia'";
+    $stmt = $db->prepare($query);
+    $stmt->bind_param("s", $roomType);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $availableRooms = [];
+    while ($row = $result->fetch_assoc()) {
+        $availableRooms[] = $row;
+    }
+
+    // Return available rooms as JSON
+    echo json_encode($availableRooms);
+}
+
+// New endpoint to fetch room types
+if (isset($_GET['get_types'])) {
+    $query = "SELECT DISTINCT tipe_kamar FROM Kamar";
+    $result = $db->query($query);
+    
+    if (!$result) {
+        die("Query failed: " . $db->error); // Error handling
+    }
+
+    $roomTypes = [];
+    while ($row = $result->fetch_assoc()) {
+        $roomTypes[] = $row['tipe_kamar'];
+    }
+    echo json_encode($roomTypes);
+    exit;
+}
+?>
