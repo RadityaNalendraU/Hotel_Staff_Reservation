@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran</title>
+    <title>Daftar Tamu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -19,11 +19,11 @@
                 const target = event.target;
                 if (target.classList.contains('update-button')) {
                     currentRow = target.closest('tr');
-
+                    
                     document.getElementById('update-id').value = currentRow.dataset.id;
                     document.getElementById('update-notelepon').value = currentRow.dataset.notelepon;
-                    document.getElementById('update-nama').value = currentRow.dataset.nama;
                     document.getElementById('update-nomorkamar').value = currentRow.dataset.nomorkamar;
+                    document.getElementById('update-nama').value = currentRow.dataset.nama;
                     document.getElementById('update-alamat').value = currentRow.dataset.alamat;
                     document.getElementById('update-email').value = currentRow.dataset.email;
 
@@ -42,7 +42,7 @@
             });
 
             updateForm.addEventListener('submit', function (e) {
-                e.preventDefault();
+                e.preventDefault(); 
                 currentRow.cells[0].textContent = document.getElementById('update-id').value;
                 currentRow.cells[1].textContent = document.getElementById('update-notelepon').value;
                 currentRow.cells[2].textContent = document.getElementById('update-nomorkamar').value;
@@ -84,7 +84,7 @@
                 <button id="search-button" class="bg-green-500 text-white px-4 py-2 rounded-lg">Search</button>
             </div>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-auto max-h-96 border border-gray-300 rounded-lg">
             <table class="min-w-full bg-white border border-gray-300 rounded-lg">
                 <thead>
                     <tr class="bg-gray-200 text-gray-700">
@@ -98,25 +98,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="text-center" data-id="12345" data-notelepon="08123456789" data-nomorkamar="101" data-nama="Monkey D Luffy" data-alamat="DORALAND" data-email="luffy@gmail.com">
-                        <td class="py-2 px-4 border">12345</td>
+                    <tr class="text-center" data-id="1001" data-notelepon="08123456789" data-nomorkamar="101" data-nama="Roronoa Zoro" data-alamat="Shimotsuki Village" data-email="zoro@gmail.com">
+                        <td class="py-2 px-4 border">1001</td>
                         <td class="py-2 px-4 border">08123456789</td>
                         <td class="py-2 px-4 border">101</td>
-                        <td class="py-2 px-4 border">Monkey D Luffy</td>
-                        <td class="py-2 px-4 border">DORALAND</td>
-                        <td class="py-2 px-4 border">luffy@gmail.com</td>
-                        <td class="py-2 px-4 border">
-                            <button class="update-button bg-green-500 text-white px-3 py-1 rounded-lg">Update</button>
-                            <button class="delete-button bg-red-500 text-white px-3 py-1 rounded-lg">Delete</button>
+                        <td class="py-2 px-4 border">Roronoa Zoro</td>
+                        <td class="py-2 px-4 border">Shimotsuki Village</td>
+                        <td class="py-2 px-4 border">zoro@gmail.com</td>
+                        <td class="py-2 px-4 border flex justify-center space-x-2">
+                        <button class="update-button bg-green-500 text-white px-3 py-1 rounded-lg">Update</button>
+                        <button class="delete-button bg-red-500 text-white px-3 py-1 rounded-lg">Delete</button>
+                        </td>
                         </td>
                     </tr>
-                    <!-- Add more rows as needed -->
                 </tbody>
             </table>
         </div>
     </div>
     </center>
-    <!-- Modal Update -->
     <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-4 text-center">Update Data</h2>

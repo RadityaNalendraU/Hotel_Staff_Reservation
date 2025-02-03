@@ -31,10 +31,14 @@
 
     <!-- Nomor Kamar -->
     <label class="block mt-4 mb-2 font-semibold">Nomor Kamar</label>
-    <select id="room-type" class="w-full p-2 border rounded-md">
-        <option value="">Pilih Nomor Kamar</option>
+    <select id="room-number" class="w-full p-2 border rounded-md">
+    <option value="">Pilih Nomor Kamar</option>
+    <option value="101">101</option>
+    <option value="102">102</option>
+    <option value="103">103</option>
+    <option value="104">104</option>
+    <option value="105">105</option>
     </select>
-
     <!-- Check-in -->
     <label class="block mt-4 mb-2 font-semibold">Check-in</label>
     <input id="checkin" type="date" class="w-full p-2 border rounded-md">
