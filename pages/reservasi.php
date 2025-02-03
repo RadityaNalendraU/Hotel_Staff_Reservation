@@ -12,48 +12,50 @@
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-4">Reservasi Hotel</h2>
 
-    <!-- Nomor Telepon + Tombol Search -->
-    <label class="block mb-2 font-semibold">Nomor Telepon</label>
-    <div class="flex">
-        <input id="phone-input" type="tel" class="w-full p-2 border rounded-md" placeholder="Masukkan nomor telepon">
-        <button onclick="searchPhone()" class="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            Search
-        </button>
-    </div>
+    <form action="submit_reservasi.php" method="POST">
+        <!-- Nomor Telepon + Tombol Search -->
+        <label class="block mb-2 font-semibold">Nomor Telepon</label>
+        <div class="flex">
+            <input id="phone-input" name="no_telepon" type="tel" class="w-full p-2 border rounded-md" placeholder="Masukkan nomor telepon">
+            <button onclick="searchPhone()" type="button" class="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Search
+            </button>
+        </div>
 
-    <!-- Tipe Kamar -->
-    <label class="block mt-4 mb-2 font-semibold">Tipe Kamar</label>
-    <select id="room-type" class="w-full p-2 border rounded-md" onchange="fetchAvailableRooms()">
-        <option value="">Pilih Tipe Kamar</option>
-    </select>
+        <!-- Tipe Kamar -->
+        <label class="block mt-4 mb-2 font-semibold">Tipe Kamar</label>
+        <select id="room-type" name="tipe_kamar" class="w-full p-2 border rounded-md" onchange="fetchAvailableRooms()">
+            <option value="">Pilih Tipe Kamar</option>
+        </select>
 
-    <!-- Nomor Kamar -->
-    <label class="block mt-4 mb-2 font-semibold">Nomor Kamar</label>
-    <select id="room-number" class="w-full p-2 border rounded-md">
-        <option value="">Pilih Nomor Kamar</option>
-    </select>
+        <!-- Nomor Kamar -->
+        <label class="block mt-4 mb-2 font-semibold">Nomor Kamar</label>
+        <select id="room-number" name="no_kamar" class="w-full p-2 border rounded-md">
+            <option value="">Pilih Nomor Kamar</option>
+        </select>
 
-    <!-- Check-in -->
-    <label class="block mt-4 mb-2 font-semibold">Check-in</label>
-    <input id="checkin" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
+        <!-- Check-in -->
+        <label class="block mt-4 mb-2 font-semibold">Check-in</label>
+        <input id="checkin" name="tanggal_check_in" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
 
-    <!-- Check-out -->
-    <label class="block mt-4 mb-2 font-semibold">Check-out</label>
-    <input id="checkout" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
+        <!-- Check-out -->
+        <label class="block mt-4 mb-2 font-semibold">Check-out</label>
+        <input id="checkout" name="tanggal_check_out" type="date" class="w-full p-2 border rounded-md" onchange="calculateTotalCost()">
 
-    <!-- Total Biaya -->
-    <label class="block mt-4 mb-2 font-semibold">Total Biaya</label>
-    <input id="total-cost" type="text" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
+        <!-- Total Biaya -->
+        <label class="block mt-4 mb-2 font-semibold">Total Biaya</label>
+        <input id="total-cost" type="text" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
 
-    <!-- Tombol Simpan & Hapus -->
-    <div class="flex justify-between mt-4">
-        <button onclick="saveData()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            Simpan
-        </button>
-        <button onclick="clearData()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-            Hapus Data
-        </button>
-    </div>
+        <!-- Tombol Simpan & Hapus -->
+        <div class="flex justify-between mt-4">
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Simpan
+            </button>
+            <button onclick="clearData()" type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                Hapus Data
+            </button>
+        </div>
+    </form>
 </div>
 
 <!-- Popup -->
@@ -95,9 +97,7 @@
                     showPopup("✅ Nomor telepon tersedia!");
                 } else {
                     showPopup("❌ Nomor telepon belum tersedia.");
-                    document.getElementById("popup").onclick = function() {
-                        window.location.href = "index.php?page=pendaftaran";
-                    };
+                    // Do not redirect to the registration page
                 }
             });
     }
@@ -150,10 +150,6 @@
         } else {
             document.getElementById("total-cost").value = "Rp 0";
         }
-    }
-
-    function saveData() {
-        showPopup("✅ Data telah tersimpan!");
     }
 
     function clearData() {
