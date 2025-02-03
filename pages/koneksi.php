@@ -4,10 +4,10 @@ $user = "root"; // Username default XAMPP adalah "root"
 $password = ""; // Default XAMPP password kosong
 $database = "reservasihoteldb"; // Ganti dengan nama database Anda
 
-$conn = new mysqli($host, $user, $password, $database);
+$db = new mysqli($host, $user, $password, $database); // Ubah dari $conn ke $db
 
 // Cek koneksi
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+if ($db->connect_error) {
+    die("Koneksi gagal: " . $db->connect_error);
 }
 ?>
