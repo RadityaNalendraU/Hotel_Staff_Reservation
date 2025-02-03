@@ -36,7 +36,6 @@ CREATE TABLE Reservasi (
     primary key  (id_reservasi),
     FOREIGN KEY (no_telepon) REFERENCES Tamu(no_telepon),
     FOREIGN KEY (no_kamar) REFERENCES Kamar(no_kamar)
-    
 )
 ENGINE=InnoDb;
 
