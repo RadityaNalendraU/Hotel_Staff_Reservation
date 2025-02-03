@@ -97,6 +97,10 @@
                     showPopup("✅ Nomor telepon tersedia!");
                 } else {
                     showPopup("❌ Nomor telepon belum tersedia.");
+                    document.getElementById("popup").onclick = function() {
+                        window.location.href = 'index.php?page=pendaftaran';
+                    };
+
                     // Do not redirect to the registration page
                 }
             });
