@@ -44,7 +44,7 @@
 
         <!-- Total Biaya -->
         <label class="block mt-4 mb-2 font-semibold">Total Biaya</label>
-        <input id="total-cost" type="text" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
+        <input id="total-cost" name="total_cost" type="hidden" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
 
         <!-- Tombol Simpan & Hapus -->
         <div class="flex justify-between mt-4">
@@ -100,8 +100,6 @@
                     document.getElementById("popup").onclick = function() {
                         window.location.href = 'index.php?page=pendaftaran';
                     };
-
-                    // Do not redirect to the registration page
                 }
             });
     }
@@ -148,11 +146,11 @@
                 .then(data => {
                     const pricePerNight = data[0].harga_per_malam; // Assuming the first result contains the price
                     const totalCost = numberOfNights * pricePerNight;
-                    document.getElementById("total-cost").value = "Rp " + totalCost.toFixed(2);
+                    document.getElementById("total-cost").value = totalCost; // Set the total cost value
                 })
                 .catch(error => console.error('Error fetching room price:', error));
         } else {
-            document.getElementById("total-cost").value = "Rp 0";
+            document.getElementById("total-cost").value = "0"; // Reset if no valid dates or room type
         }
     }
 
@@ -163,7 +161,7 @@
             document.getElementById("room-number").value = "";
             document.getElementById("checkin").value = "";
             document.getElementById("checkout").value = "";
-            document.getElementById("total-cost").value = "Rp 0";
+            document.getElementById("total-cost").value = "0";
 
             showPopup("🗑️ Data telah dihapus.");
         }
@@ -182,7 +180,6 @@
 
 </body>
 </html>
-
 <?php
 require 'pages/koneksi.php';
 
