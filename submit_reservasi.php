@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $id_reservasi = $conn->insert_id; // Retrieve the last inserted ID
 
         // Insert total cost into pembayaran table
-        $paymentQuery = "INSERT INTO Pembayaran (id_reservasi, no_telepon, total_pembayaran) VALUES (?, ?, ?)";
+        $paymentQuery = "INSERT INTO Pembayaran (id_reservasi, no_telepon, tanggal_pembayaran, total_pembayaran) VALUES (?, ?, NOW(), ?)";
         $paymentStmt = $conn->prepare($paymentQuery);
         $paymentStmt->bind_param("isd", $id_reservasi, $no_telepon, $total_cost);
         $paymentStmt->execute();

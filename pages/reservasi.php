@@ -44,7 +44,7 @@
 
         <!-- Total Biaya -->
         <label class="block mt-4 mb-2 font-semibold">Total Biaya</label>
-        <input id="total-cost" name="total_cost" type="hidden" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
+        <input id="total-cost" name="total_cost" class="w-full p-2 border rounded-md bg-gray-100" placeholder="Rp 0" readonly>
 
         <!-- Tombol Simpan & Hapus -->
         <div class="flex justify-between mt-4">
