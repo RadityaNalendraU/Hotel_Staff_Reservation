@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $no_kamar = htmlspecialchars($_POST['no_kamar']);
     $tanggal_check_in = htmlspecialchars($_POST['tanggal_check_in']);
     $tanggal_check_out = htmlspecialchars($_POST['tanggal_check_out']);
+    $total_cost = htmlspecialchars($_POST['total_cost']); // Retrieve total cost from POST data
 
     // Log input values for debugging
     error_log("Input values: no_telepon=$no_telepon, no_kamar=$no_kamar, check_in=$tanggal_check_in, check_out=$tanggal_check_out");
@@ -36,6 +37,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssss", $no_telepon, $no_kamar, $tanggal_check_in, $tanggal_check_out);
 
     if ($stmt->execute()) {
+        $id_reservasi = $conn->insert_id; // Retrieve the last inserted ID
+
+        // Insert total cost into pembayaran table
+        $paymentQuery = "INSERT INTO Pembayaran (id_reservasi, no_telepon, tanggal_pembayaran, total_pembayaran) VALUES (?, ?, NOW(), ?)";
+        $paymentStmt = $conn->prepare($paymentQuery);
+        $paymentStmt->bind_param("isd", $id_reservasi, $no_telepon, $total_cost);
+        $paymentStmt->execute();
+        $paymentStmt->close();
+
         echo json_encode(['success' => true]);
     } else {
         // Log the error

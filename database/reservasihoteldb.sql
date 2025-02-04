@@ -283,9 +283,9 @@ BEGIN
     UPDATE Kamar
     SET status_kamar = 'Tersedia'
     WHERE no_kamar = OLD.no_kamar;
-END //
+END //
 
-DELIMITER ;
+DELIMITER ;
 
 --procedure update tamu
 DELIMITER //
