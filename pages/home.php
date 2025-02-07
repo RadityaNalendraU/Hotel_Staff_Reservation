@@ -30,9 +30,6 @@
                             <p class="text-gray-600 mb-4">
                                 A luxurious room with a king-sized bed, modern decor, and a stunning city view.
                             </p>
-                            <a class="text-blue-500 hover:underline" href="#">
-                                Book Now
-                            </a>
                         </div>
                     </div>
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -44,9 +41,6 @@
                             <p class="text-gray-600 mb-4">
                                 A spacious suite with a separate living area, elegant furnishings, and a panoramic ocean view.
                             </p>
-                            <a class="text-blue-500 hover:underline" href="#">
-                                Book Now
-                            </a>
                         </div>
                     </div>
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -58,9 +52,6 @@
                             <p class="text-gray-600 mb-4">
                                 A cozy room with twin beds, contemporary design, and a relaxing garden view.
                             </p>
-                            <a class="text-blue-500 hover:underline" href="#">
-                                Book Now
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -112,9 +103,6 @@
                 <p class="text-gray-600 mb-4">
                     Have any questions or need assistance? Feel free to reach out to us.
                 </p>
-                <a class="text-blue-500 hover:underline" href="#">
-                    Get in Touch
-                </a>
             </section>
         </main>
     </div>

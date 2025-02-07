@@ -18,10 +18,33 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <div class="flex justify-center items-start min-h-screen pt-10"> <!-- Changed items-center to items-start and added pt-10 -->
+    <div class="flex justify-center items-start min-h-screen pt-10">
         <div class="bg-white p-8 rounded shadow-md w-full max-w-4xl">
             <h2 class="text-2xl font-bold mb-6">Kamar</h2>
-            <form action="" method="POST"> <!-- Action is set to an empty string to stay on the same page -->
+            
+            <!-- Form untuk mengubah harga -->
+            <form action="" method="POST" class="mb-6">
+                <div class="mb-4">
+                    <select name="tipe_kamar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">Pilih Tipe Kamar</option>
+                        <option value="Standar">Standar</option>
+                        <option value="Deluxe">Deluxe</option>
+                        <option value="Suite">Suite</option>
+                        <option value="Single">Single</option>
+                        <option value="Double">Double</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" name="harga_baru" type="number" placeholder="Harga Baru" required>
+                </div>
+                <div class="mb-4">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                        Ubah Harga
+                    </button>
+                </div>
+            </form>
+
+            <form action="" method="POST">
                 <div class="mb-4">
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="search" name="search" type="text" placeholder="Cari Kamar" value="<?php echo isset($_POST['search']) ? htmlspecialchars($_POST['search']) : ''; ?>">
                 </div>
@@ -49,7 +72,22 @@
                         $search = '';
                         $noDataFound = false; // Flag to check if no data is found
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                            $search = $_POST['search'];
+                            if (isset($_POST['tipe_kamar']) && isset($_POST['harga_baru'])) {
+                                $tipe_kamar = $_POST['tipe_kamar'];
+                                $harga_baru = $_POST['harga_baru'];
+
+                                // Update query
+                                $update_query = "UPDATE kamar SET harga_per_malam = ? WHERE tipe_kamar = ?";
+                                $update_stmt = $db->prepare($update_query);
+                                $update_stmt->bind_param("is", $harga_baru, $tipe_kamar);
+                                $update_stmt->execute();
+                                $update_stmt->close();
+                            }
+
+                            // Check if search is set
+                            if (isset($_POST['search'])) {
+                                $search = $_POST['search'];
+                            }
                         }
 
                         // Prepare SQL query

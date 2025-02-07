@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="nomor-telepon">Nomor Telepon</label>
-                <input class="shadow border rounded w-full py-2 px-3 text-gray-700" id="nomor-telepon" name="no_telepon" type="text" placeholder="Nomor Telepon">
+                <input class="shadow border rounded w-full py-2 px-3 text-gray-700" id="nomor-telepon" name="no_telepon" type="number" placeholder="Nomor Telepon">
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>

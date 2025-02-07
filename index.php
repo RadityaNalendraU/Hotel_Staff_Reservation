@@ -52,9 +52,6 @@ if (!file_exists($file)) {
             <div class="text-2xl font-bold mb-4">
                 Hotel Reservasi
             </div>
-            <div class="mb-4">
-                <input class="w-full p-2 rounded bg-green-600 placeholder-white" placeholder="Search" type="text"/>
-            </div>
             <div class="mb-4 sidebar-item" data-target="home">
                 <div class="font-bold">
                     <i class="fas fa-hotel mr-2"></i> Hotel XYZ
