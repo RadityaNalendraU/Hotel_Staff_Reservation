@@ -328,24 +328,26 @@ BEGIN
     DECLARE kategori VARCHAR(10);
 
     -- Ambil total pembayaran tamu berdasarkan nomor telepon
-    SELECT SUM(total_pembayaran) INTO totalPembayaran 
+    SELECT COALESCE(SUM(total_pembayaran), 0) INTO totalPembayaran 
     FROM Pembayaran 
     WHERE no_telepon = noTelepon;
     
-    -- Beri kategori loyalitas berdasarkan total pembayaran
-    IF totalPembayaran > 10000000 THEN
-        SET kategori = 'Platinum';
-    ELSEIF totalPembayaran >= 5000000 THEN
-        SET kategori = 'Gold';
-    ELSEIF totalPembayaran >= 2000000 THEN
-        SET kategori = 'Silver';
-    ELSE
+    -- Ambil kategori loyalitas berdasarkan batasan dari tabel loyalitas
+    SELECT loyalitas INTO kategori
+    FROM loyalitas
+    WHERE totalPembayaran >= batasan
+    ORDER BY batasan DESC
+    LIMIT 1;
+
+    -- Jika tidak ada kategori yang cocok, set sebagai 'Bronze'
+    IF kategori IS NULL THEN
         SET kategori = 'Bronze';
     END IF;
     
     RETURN kategori;
 END //
 DELIMITER ;
+
 
 -- trigger untuk meng update loyalitas tamu
 DELIMITER //
