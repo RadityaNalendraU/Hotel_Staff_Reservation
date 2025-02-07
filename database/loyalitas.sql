@@ -61,3 +61,14 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER after_insert_log_reservasi
+AFTER BEFORE ON log_reservasi
+FOR EACH ROW
+BEGIN
+    DELETE FROM log_reservasi WHERE id_pembayaran = 0;
+END //
+
+DELIMITER ;
