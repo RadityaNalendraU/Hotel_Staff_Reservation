@@ -3,6 +3,14 @@ drop database if exists ReservasiHotelDB;
 CREATE DATABASE IF NOT EXISTS ReservasiHotelDB;
 USE ReservasiHotelDB;
 
+-- Membuat tabel Loyalotas
+CREATE TABLE loyalitas (
+    loyalitas VARCHAR(40) NOT NULL,
+    batasan INT(10) NOT NULL,
+    primary key (loyalitas)
+)
+ENGINE=InnoDb;
+
 -- Membuat tabel Tamu
 CREATE TABLE Tamu (
     no_telepon VARCHAR(15) NOT NULL,
@@ -12,7 +20,8 @@ CREATE TABLE Tamu (
     loyalitas Varchar(40) NOT NULL DEFAULT "Bronze",
     total_pengeluaran INT (11) NOT NULL DEFAULT 0,
     tanggal_pendaftaran DATE NOT NULL DEFAULT NOW(),
-    primary key (no_telepon)
+    primary key (no_telepon),
+    FOREIGN KEY (loyalitas) REFERENCES loyalitas(loyalitas)
 )
 ENGINE=InnoDb;
 
@@ -55,20 +64,21 @@ ENGINE=InnoDb;
 
 CREATE TABLE log_reservasi (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
-    id_reservasi int,
-    id_pembayaran INT,
+    id_reservasi INT UNIQUE,
+    id_pembayaran INT UNIQUE,
     tanggal_dihapus DATETIME,
     total_pembayaran DECIMAL(10, 2)
 )
 ENGINE=InnoDb;
 
-CREATE TABLE loyalitas (
-id_loyalitas INT AUTO_INCREMENT PRIMARY KEY,
-loyalitas VARCHAR(20) NOT NULL,
-batasan INT(10) NOT NULL,
-)
-ENGINE=InnoDb;
 
+
+-- Memasukan data ke tabel loyalitas
+INSERT INTO loyalitas (loyalitas,batasan) VALUES 
+('Platinum',20000000),
+('Gold',10000000),
+('Silver',5000000),
+('Bronze',0);
 -- Memasukkan data ke tabel Tamu
 INSERT INTO Tamu (no_telepon, nama, email, alamat) VALUES
 ('01222333344444', 'Hwang Ye-ji', 'yeji@example.com', 'Seoul 23-1, Mapo-gu, Sangsu-dong'),
@@ -242,11 +252,6 @@ INSERT INTO Pembayaran (id_reservasi, no_telepon, tanggal_pembayaran, total_pemb
 (38,'6667778889','2024-10-26'    , 3000000),
 (39,'7778889990','2024-10-27'    , 1600000),
 (40,'8889990001','2024-10-30'    , 1000000);
-
-INSERT INTO loyalitas (loyalitas,batasan) VALUES 
-('Platinum',20000000),
-('Gold',10000000),
-('Silver',5000000);
 
 --procedure tambah tamu
 DELIMITER //
