@@ -10,7 +10,7 @@ CREATE TABLE Tamu (
     alamat TEXT, 
     email VARCHAR(30) NOT NULL UNIQUE,
     loyalitas Varchar(40) NOT NULL DEFAULT "Brnoze",
-    total_pengeluaran INT (11),
+    total_pengeluaran INT (11) NOT NULL DEFAULT 0,
     primary key (no_telepon)
 )
 ENGINE=InnoDb;
@@ -277,7 +277,7 @@ DELIMITER ;
 DELIMITER //
 
 CREATE TRIGGER after_reservasi_delete
-AFTER DELETE ON Reservasi
+BEFORE DELETE ON Reservasi
 FOR EACH ROW
 BEGIN
     UPDATE Kamar
@@ -369,34 +369,6 @@ END;
 DELIMITER ;
 
 
-
---memasukan data reservasi yang lama ke dalam log_reservasi
-
-DELIMITER //
-
-CREATE TRIGGER before_delete_reservasi
-BEFORE DELETE ON reservasi
-FOR EACH ROW
-BEGIN
-    DECLARE v_id_pembayaran INT;
-    DECLARE v_total_pembayaran DECIMAL(10,2);
-
-    -- Mengambil nilai dari tabel pembayaran
-    SELECT id_pembayaran, total_pembayaran INTO v_id_pembayaran, v_total_pembayaran
-    FROM pembayaran
-    WHERE id_reservasi = OLD.id_reservasi
-    LIMIT 1;
-
-    -- Jika tidak ditemukan, atur nilai default (menghindari NULL)
-    SET v_id_pembayaran = IFNULL(v_id_pembayaran, 0);
-    SET v_total_pembayaran = IFNULL(v_total_pembayaran, 0);
-
-    -- Masukkan data ke log_reservasi
-    INSERT INTO log_reservasi (id_reservasi, id_pembayaran, tanggal_dihapus, total_pembayaran)
-    VALUES (OLD.id_reservasi, v_id_pembayaran, NOW(), v_total_pembayaran);
-END //
-
-DELIMITER ;
 
 DELIMITER //
 
