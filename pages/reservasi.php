@@ -12,7 +12,8 @@
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-4">Reservasi Hotel</h2>
 
-    <form id="reservation-form">        <!-- Nomor Telepon + Tombol Search -->
+    <form id="reservation-form">        
+        <!-- Nomor Telepon + Tombol Search -->
         <label class="block mb-2 font-semibold">Nomor Telepon</label>
         <div class="flex">
             <input id="phone-input" name="no_telepon" type="tel" class="w-full p-2 border rounded-md" placeholder="Masukkan nomor telepon">
