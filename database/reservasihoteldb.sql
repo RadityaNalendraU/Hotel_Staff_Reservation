@@ -276,12 +276,14 @@ BEGIN
     WHERE no_telepon LIKE CONCAT('%', p_search, '%')
        OR nama LIKE CONCAT('%', p_search, '%')
        OR email LIKE CONCAT('%', p_search, '%')
-       OR alamat LIKE CONCAT('%', p_search, '%');
+       OR alamat LIKE CONCAT('%', p_search, '%')
+       OR loyalitas LIKE CONCAT('%', p_search, '%');
 END //
 
 DELIMITER ;
 
 --trigger update status kamar
+--set kamar penuh
 DELIMITER //
 CREATE TRIGGER after_reservasi_insert
 AFTER INSERT ON Reservasi
@@ -293,16 +295,23 @@ BEGIN
 END //
 DELIMITER ;
 
+--set kamar tersedia
 DELIMITER //
 
-CREATE TRIGGER after_reservasi_delete
-BEFORE DELETE ON Reservasi
+CREATE TRIGGER after_update_reservasi
+AFTER UPDATE ON reservasi
 FOR EACH ROW
 BEGIN
-    UPDATE Kamar
-    SET status_kamar = 'Tersedia'
-    WHERE no_kamar = OLD.no_kamar;
-END //
+    -- Check if the status has changed to 'Lunas'
+    IF NEW.status_reservasi = 'Lunas' THEN
+        -- Update the status_kamar in the kamar table
+        UPDATE kamar
+        SET status_kamar = 'Tersedia'
+        WHERE no_kamar = NEW.no_kamar;  -- Use no_kamar instead of id_kamar
+    END IF;
+END;
+
+//
 
 DELIMITER ;
 
@@ -333,8 +342,8 @@ BEGIN
     DECLARE kategori VARCHAR(10);
 
     -- Ambil total pembayaran tamu berdasarkan nomor telepon
-    SELECT COALESCE(SUM(total_pembayaran), 0) INTO totalPembayaran 
-    FROM Pembayaran 
+    SELECT total_pengeluaran INTO totalPembayaran 
+    FROM tamu 
     WHERE no_telepon = noTelepon;
     
     -- Ambil kategori loyalitas berdasarkan batasan dari tabel loyalitas
@@ -396,12 +405,33 @@ DELIMITER //
 CREATE PROCEDURE GetReservations(IN startDate DATETIME, IN endDate DATETIME)
 BEGIN
     IF endDate IS NOT NULL THEN
-        SELECT * FROM log_reservasi
-        WHERE tanggal_dihapus >= startDate AND tanggal_dihapus <= endDate;
+        SELECT * FROM Reservasi
+        WHERE tanggal_check_in >= startDate AND tanggal_check_in <= endDate;
     ELSE
-        SELECT * FROM log_reservasi
-        WHERE tanggal_dihapus = startDate;
+        SELECT * FROM reservasi
+        WHERE tanggal_check_in = startDate;
     END IF;
 END //
 
 DELIMITER ;
+
+--delete pembayaran
+DELIMITER //
+
+CREATE TRIGGER after_update_reservasi_delete_payments
+AFTER UPDATE ON reservasi
+FOR EACH ROW
+BEGIN
+    -- Check if the status has changed to 'Lunas'
+    IF NEW.status_reservasi = 'Lunas' THEN
+        -- Delete corresponding payment records
+        DELETE FROM pembayaran
+        WHERE id_reservasi = NEW.id_reservasi; -- Adjust this condition if needed
+    END IF;
+END;
+
+//
+
+DELIMITER ;
+
+--log_reservasi

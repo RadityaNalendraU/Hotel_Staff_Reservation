@@ -7,12 +7,17 @@ $endDate = isset($_POST['end_date']) ? $_POST['end_date'] : '';
 $reservations = [];
 
 if (!empty($startDate) && !empty($endDate)) {
-    // Ambil data berdasarkan filter tanggal
-    $stmt = $db->prepare("CALL GetReservations(?, ?)");
-    $stmt->bind_param("ss", $startDate, $endDate);
+    // Ambil data berdasarkan filter tanggal dan hanya status lunas
+    $stmt = $db->prepare("SELECT id_reservasi, no_telepon, no_kamar, tanggal_check_in, tanggal_check_out, status_reservasi, total_pembayaran 
+                          FROM reservasi 
+                          WHERE (tanggal_check_in BETWEEN ? AND ? OR tanggal_check_out BETWEEN ? AND ?) 
+                          AND status_reservasi = 'Lunas'");
+    $stmt->bind_param("ssss", $startDate, $endDate, $startDate, $endDate);
 } else {
-    // Ambil semua data tanpa filter jika tidak ada tanggal yang diberikan
-    $stmt = $db->prepare("SELECT * FROM log_reservasi");
+    // Ambil semua data dengan status lunas tanpa filter tanggal
+    $stmt = $db->prepare("SELECT id_reservasi, no_telepon, no_kamar, tanggal_check_in, tanggal_check_out, status_reservasi, total_pembayaran 
+                          FROM reservasi 
+                          WHERE status_reservasi = 'Lunas'");
 }
 
 $stmt->execute();
@@ -63,10 +68,12 @@ if (isset($_GET['ajax'])) {
                 reservations.forEach(reservation => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="py-2 px-4 border-b">${reservation.id_log}</td>
                         <td class="py-2 px-4 border-b">${reservation.id_reservasi}</td>
-                        <td class="py-2 px-4 border-b">${reservation.id_pembayaran}</td>
-                        <td class="py-2 px-4 border-b">${reservation.tanggal_dihapus}</td>
+                        <td class="py-2 px-4 border-b">${reservation.no_telepon}</td>
+                        <td class="py-2 px-4 border-b">${reservation.no_kamar}</td>
+                        <td class="py-2 px-4 border-b">${reservation.tanggal_check_in}</td>
+                        <td class="py-2 px-4 border-b">${reservation.tanggal_check_out}</td>
+                        <td class="py-2 px-4 border-b">${reservation.status_reservasi}</td>
                         <td class="py-2 px-4 border-b">${reservation.total_pembayaran}</td>
                     `;
                     tableBody.appendChild(row);
@@ -107,10 +114,12 @@ if (isset($_GET['ajax'])) {
             <table class="min-w-full bg-white">
                 <thead>
                     <tr>
-                        <th class="py-2 px-4 border-b">ID Log</th>
                         <th class="py-2 px-4 border-b">ID Reservasi</th>
-                        <th class="py-2 px-4 border-b">ID Pembayaran</th>
-                        <th class="py-2 px-4 border-b">Tanggal Dihapus</th>
+                        <th class="py-2 px-4 border-b">No Telepon</th>
+                        <th class="py-2 px-4 border-b">No Kamar</th>
+                        <th class="py-2 px-4 border-b">Tanggal Check-In</th>
+                        <th class="py-2 px-4 border-b">Tanggal Check-Out</th>
+                        <th class="py-2 px-4 border-b">Status Reservasi</th>
                         <th class="py-2 px-4 border-b">Total Pembayaran</th>
                     </tr>
                 </thead>
@@ -118,16 +127,18 @@ if (isset($_GET['ajax'])) {
                 <?php if (mysqli_num_rows($result) > 0) : ?>
                     <?php foreach ($reservations as $reservation): ?>
                         <tr>
-                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['id_log']); ?></td>
                             <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['id_reservasi']); ?></td>
-                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['id_pembayaran']); ?></td>
-                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['tanggal_dihapus']); ?></td>
+                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['no_telepon']); ?></td>
+                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['no_kamar']); ?></td>
+                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['tanggal_check_in']); ?></td>
+                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['tanggal_check_out']); ?></td>
+                            <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['status_reservasi']); ?></td>
                             <td class="py-2 px-4 border-b"><?= htmlspecialchars($reservation['total_pembayaran']); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     <?php else : ?>
                         <tr>
-                            <td colspan="6" class="py-2 px-4 text-center text-gray-500">Tidak Ada Data di Tanggal Yang di Maksud </td>
+                            <td colspan="7" class="py-2 px-4 text-center text-gray-500">Tidak Ada Data di Tanggal Yang di Maksud</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
