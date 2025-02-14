@@ -275,21 +275,7 @@ ADD CONSTRAINT fk_log_reservasi
 FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi) 
 ON DELETE SET NULL;
 
---procedure tambah tamu
-DELIMITER //
 
-CREATE PROCEDURE InsertTamu(
-    IN p_no_telepon VARCHAR(15),
-    IN p_nama VARCHAR(100),
-    IN p_email VARCHAR(100),
-    IN p_alamat TEXT
-)
-BEGIN
-    INSERT INTO tamu (no_telepon, nama, email, alamat) 
-    VALUES (p_no_telepon, p_nama, p_email, p_alamat);
-END //
-
-DELIMITER ;
 -- procedur mencari data tamu
 DELIMITER //
 CREATE PROCEDURE SearchTamu(IN p_search VARCHAR(100))
@@ -335,23 +321,6 @@ END;
 
 //
 
-DELIMITER ;
-
---procedure update tamu
-DELIMITER //
-CREATE PROCEDURE UpdateTamu(
-    IN p_no_telepon VARCHAR(15),
-    IN p_nama VARCHAR(100),
-    IN p_email VARCHAR(100),
-    IN p_alamat TEXT
-)
-BEGIN
-    UPDATE tamu 
-    SET nama = p_nama, 
-        email = p_email, 
-        alamat = p_alamat
-    WHERE no_telepon = p_no_telepon;
-END //
 DELIMITER ;
 
 -- function unntuk melihat loyalitas tamu
@@ -455,5 +424,3 @@ END;
 //
 
 DELIMITER ;
-
---log_reservasi
