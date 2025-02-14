@@ -57,20 +57,32 @@ CREATE TABLE Pembayaran (
     tanggal_pembayaran DATE NOT NULL DEFAULT NOW(),
     total_pembayaran INT(9) NOT NULL ,
     primary key (id_pembayaran),
-    FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi),
+     FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi),
     FOREIGN KEY (no_telepon) REFERENCES Tamu(no_telepon)
 )
 ENGINE=InnoDb;
 
 CREATE TABLE log_reservasi (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
-    id_reservasi INT UNIQUE,
-    id_pembayaran INT UNIQUE,
-    tanggal_dihapus DATETIME,
-    total_pembayaran DECIMAL(10, 2)
+    id_reservasi INT ,
+    total_pembayaran INT(9) NOT NULL DEFAULT 0,
+    tanggal_disimpan DATETIME DEFAULT NOW(),
+    FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi)
 )
 ENGINE=InnoDb;
 
+--trigger log_reservasi
+DELIMITER //
+
+CREATE TRIGGER after_insert_reservasi
+AFTER INSERT ON Reservasi
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_reservasi (id_reservasi, total_pembayaran)
+    VALUES (NEW.id_reservasi, NEW.total_pembayaran);
+END //
+
+DELIMITER ;
 
 
 -- Memasukan data ke tabel loyalitas
@@ -253,6 +265,16 @@ INSERT INTO Pembayaran (id_reservasi, no_telepon, tanggal_pembayaran, total_pemb
 (39,'7778889990','2024-10-27'    , 1600000),
 (40,'8889990001','2024-10-30'    , 1000000);
 
+--on delete set null
+ALTER TABLE log_reservasi 
+DROP FOREIGN KEY log_reservasi_ibfk_1;  -- Hapus foreign key lama (nama FK bisa berbeda, cek dengan SHOW CREATE TABLE log_reservasi)
+
+ALTER TABLE log_reservasi 
+MODIFY id_reservasi INT NULL,  -- Izinkan nilai NULL
+ADD CONSTRAINT fk_log_reservasi 
+FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi) 
+ON DELETE SET NULL;
+
 --procedure tambah tamu
 DELIMITER //
 
@@ -268,7 +290,7 @@ BEGIN
 END //
 
 DELIMITER ;
-
+-- procedur mencari data tamu
 DELIMITER //
 CREATE PROCEDURE SearchTamu(IN p_search VARCHAR(100))
 BEGIN
