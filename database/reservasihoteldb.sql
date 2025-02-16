@@ -84,6 +84,154 @@ END //
 
 DELIMITER ;
 
+-- procedur mencari data tamu
+DELIMITER //
+CREATE PROCEDURE SearchTamu(IN p_search VARCHAR(100))
+BEGIN
+    SELECT * FROM tamu
+    WHERE no_telepon LIKE CONCAT('%', p_search, '%')
+       OR nama LIKE CONCAT('%', p_search, '%')
+       OR email LIKE CONCAT('%', p_search, '%')
+       OR alamat LIKE CONCAT('%', p_search, '%')
+       OR loyalitas LIKE CONCAT('%', p_search, '%');
+END //
+
+DELIMITER ;
+
+--trigger update status kamar
+--set kamar penuh
+DELIMITER //
+CREATE TRIGGER after_reservasi_insert
+AFTER INSERT ON Reservasi
+FOR EACH ROW
+BEGIN
+    UPDATE Kamar
+    SET status_kamar = 'Penuh'
+    WHERE no_kamar = NEW.no_kamar;
+END //
+DELIMITER ;
+
+--set kamar tersedia
+DELIMITER //
+
+CREATE TRIGGER after_update_reservasi
+AFTER UPDATE ON reservasi
+FOR EACH ROW
+BEGIN
+    -- Check if the status has changed to 'Lunas'
+    IF NEW.status_reservasi = 'Lunas' THEN
+        -- Update the status_kamar in the kamar table
+        UPDATE kamar
+        SET status_kamar = 'Tersedia'
+        WHERE no_kamar = NEW.no_kamar;  -- Use no_kamar instead of id_kamar
+    END IF;
+END;
+
+//
+
+DELIMITER ;
+
+-- function unntuk melihat loyalitas tamu
+DELIMITER //
+CREATE FUNCTION KategoriLoyalitasTamu(noTelepon VARCHAR(15)) 
+RETURNS VARCHAR(10)
+DETERMINISTIC
+BEGIN
+    DECLARE totalPembayaran DECIMAL(15,2);
+    DECLARE kategori VARCHAR(10);
+
+    -- Ambil total pembayaran tamu berdasarkan nomor telepon
+    SELECT total_pengeluaran INTO totalPembayaran 
+    FROM tamu 
+    WHERE no_telepon = noTelepon;
+    
+    -- Ambil kategori loyalitas berdasarkan batasan dari tabel loyalitas
+    SELECT loyalitas INTO kategori
+    FROM loyalitas
+    WHERE totalPembayaran >= batasan
+    ORDER BY batasan DESC
+    LIMIT 1;
+
+    -- Jika tidak ada kategori yang cocok, set sebagai 'Bronze'
+    IF kategori IS NULL THEN
+        SET kategori = 'Bronze';
+    END IF;
+    
+    RETURN kategori;
+END //
+DELIMITER ;
+
+--trigger untuk meng update total pengeluaran tamu
+DELIMITER //
+CREATE TRIGGER UpdateTotalPengeluaranTamu
+AFTER INSERT ON Pembayaran
+FOR EACH ROW
+BEGIN
+    -- Update total_pengeluaran pada tabel Tamu
+    UPDATE Tamu 
+    SET total_pengeluaran = total_pengeluaran + NEW.total_pembayaran
+    WHERE no_telepon = NEW.no_telepon;
+END;
+//
+DELIMITER ;
+
+
+-- trigger untuk meng update loyalitas tamu
+DELIMITER //
+
+CREATE TRIGGER UpdateLoyalitasTamu
+AFTER INSERT ON Pembayaran
+FOR EACH ROW
+BEGIN
+    DECLARE kategori VARCHAR(10);
+
+    -- Panggil Stored Function untuk menentukan kategori loyalitas
+    SET kategori = KategoriLoyalitasTamu(NEW.no_telepon);
+
+    -- Update kategori loyalitas pada tabel Tamu
+    UPDATE Tamu 
+    SET loyalitas = kategori
+    WHERE no_telepon = NEW.no_telepon;
+END;
+//
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE GetReservations(IN startDate DATETIME, IN endDate DATETIME)
+BEGIN
+    IF endDate IS NOT NULL THEN
+        SELECT * FROM Reservasi
+        WHERE tanggal_check_in >= startDate AND tanggal_check_in <= endDate;
+    ELSE
+        SELECT * FROM reservasi
+        WHERE tanggal_check_in = startDate;
+    END IF;
+END //
+
+DELIMITER ;
+
+--delete pembayaran
+DELIMITER //
+
+CREATE TRIGGER after_update_reservasi_delete_payments
+AFTER UPDATE ON reservasi
+FOR EACH ROW
+BEGIN
+    -- Check if the status has changed to 'Lunas'
+    IF NEW.status_reservasi = 'Lunas' THEN
+        -- Delete corresponding payment records
+        DELETE FROM pembayaran
+        WHERE id_reservasi = NEW.id_reservasi; -- Adjust this condition if needed
+    END IF;
+END;
+
+//
+
+DELIMITER ;
+
 
 -- Memasukan data ke tabel loyalitas
 INSERT INTO loyalitas (loyalitas,batasan) VALUES 
@@ -274,153 +422,3 @@ MODIFY id_reservasi INT NULL,  -- Izinkan nilai NULL
 ADD CONSTRAINT fk_log_reservasi 
 FOREIGN KEY (id_reservasi) REFERENCES Reservasi(id_reservasi) 
 ON DELETE SET NULL;
-
-
--- procedur mencari data tamu
-DELIMITER //
-CREATE PROCEDURE SearchTamu(IN p_search VARCHAR(100))
-BEGIN
-    SELECT * FROM tamu
-    WHERE no_telepon LIKE CONCAT('%', p_search, '%')
-       OR nama LIKE CONCAT('%', p_search, '%')
-       OR email LIKE CONCAT('%', p_search, '%')
-       OR alamat LIKE CONCAT('%', p_search, '%')
-       OR loyalitas LIKE CONCAT('%', p_search, '%');
-END //
-
-DELIMITER ;
-
---trigger update status kamar
---set kamar penuh
-DELIMITER //
-CREATE TRIGGER after_reservasi_insert
-AFTER INSERT ON Reservasi
-FOR EACH ROW
-BEGIN
-    UPDATE Kamar
-    SET status_kamar = 'Penuh'
-    WHERE no_kamar = NEW.no_kamar;
-END //
-DELIMITER ;
-
---set kamar tersedia
-DELIMITER //
-
-CREATE TRIGGER after_update_reservasi
-AFTER UPDATE ON reservasi
-FOR EACH ROW
-BEGIN
-    -- Check if the status has changed to 'Lunas'
-    IF NEW.status_reservasi = 'Lunas' THEN
-        -- Update the status_kamar in the kamar table
-        UPDATE kamar
-        SET status_kamar = 'Tersedia'
-        WHERE no_kamar = NEW.no_kamar;  -- Use no_kamar instead of id_kamar
-    END IF;
-END;
-
-//
-
-DELIMITER ;
-
--- function unntuk melihat loyalitas tamu
-DELIMITER //
-CREATE FUNCTION KategoriLoyalitasTamu(noTelepon VARCHAR(15)) 
-RETURNS VARCHAR(10)
-DETERMINISTIC
-BEGIN
-    DECLARE totalPembayaran DECIMAL(15,2);
-    DECLARE kategori VARCHAR(10);
-
-    -- Ambil total pembayaran tamu berdasarkan nomor telepon
-    SELECT total_pengeluaran INTO totalPembayaran 
-    FROM tamu 
-    WHERE no_telepon = noTelepon;
-    
-    -- Ambil kategori loyalitas berdasarkan batasan dari tabel loyalitas
-    SELECT loyalitas INTO kategori
-    FROM loyalitas
-    WHERE totalPembayaran >= batasan
-    ORDER BY batasan DESC
-    LIMIT 1;
-
-    -- Jika tidak ada kategori yang cocok, set sebagai 'Bronze'
-    IF kategori IS NULL THEN
-        SET kategori = 'Bronze';
-    END IF;
-    
-    RETURN kategori;
-END //
-DELIMITER ;
-
-
--- trigger untuk meng update loyalitas tamu
-DELIMITER //
-
-CREATE TRIGGER UpdateLoyalitasTamu
-AFTER INSERT ON Pembayaran
-FOR EACH ROW
-BEGIN
-    DECLARE kategori VARCHAR(10);
-
-    -- Panggil Stored Function untuk menentukan kategori loyalitas
-    SET kategori = KategoriLoyalitasTamu(NEW.no_telepon);
-
-    -- Update kategori loyalitas pada tabel Tamu
-    UPDATE Tamu 
-    SET loyalitas = kategori
-    WHERE no_telepon = NEW.no_telepon;
-END;
-//
-DELIMITER ;
-
-
---trigger untuk meng update total pengeluaran tamu
-DELIMITER //
-CREATE TRIGGER UpdateTotalPengeluaranTamu
-AFTER INSERT ON Pembayaran
-FOR EACH ROW
-BEGIN
-    -- Update total_pengeluaran pada tabel Tamu
-    UPDATE Tamu 
-    SET total_pengeluaran = total_pengeluaran + NEW.total_pembayaran
-    WHERE no_telepon = NEW.no_telepon;
-END;
-//
-DELIMITER ;
-
-
-
-DELIMITER //
-
-CREATE PROCEDURE GetReservations(IN startDate DATETIME, IN endDate DATETIME)
-BEGIN
-    IF endDate IS NOT NULL THEN
-        SELECT * FROM Reservasi
-        WHERE tanggal_check_in >= startDate AND tanggal_check_in <= endDate;
-    ELSE
-        SELECT * FROM reservasi
-        WHERE tanggal_check_in = startDate;
-    END IF;
-END //
-
-DELIMITER ;
-
---delete pembayaran
-DELIMITER //
-
-CREATE TRIGGER after_update_reservasi_delete_payments
-AFTER UPDATE ON reservasi
-FOR EACH ROW
-BEGIN
-    -- Check if the status has changed to 'Lunas'
-    IF NEW.status_reservasi = 'Lunas' THEN
-        -- Delete corresponding payment records
-        DELETE FROM pembayaran
-        WHERE id_reservasi = NEW.id_reservasi; -- Adjust this condition if needed
-    END IF;
-END;
-
-//
-
-DELIMITER ;
