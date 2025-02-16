@@ -70,7 +70,7 @@
             $successMessage = "Terjadi kesalahan: " . $e->getMessage();
         }
     }
-    $query = "SELECT no_telepon, nama, email, alamat, loyalitas FROM tamu";
+    $query = "SELECT no_telepon, nama, email, alamat, loyalitas,tanggal_pendaftaran  FROM tamu";
     $result = mysqli_query($db, $query);
 
     if (!$result) {
@@ -174,6 +174,7 @@
                         <th class="py-2 px-4 border">Email</th>
                         <th class="py-2 px-4 border">Alamat</th>
                         <th class="py-2 px-4 border">Loyalitas</th>
+                        <th class="py-2 px-4 border">Tanggal Daftar</th>
                         <th class="py-2 px-4 border">Aksi</th>
                     </tr>
                 </thead>
@@ -184,12 +185,14 @@
                                 data-nama="<?= $row['nama'] ?>" 
                                 data-email="<?= $row['email'] ?>" 
                                 data-alamat="<?= $row['alamat'] ?>" 
-                                data-loyalitas="<?= $row['loyalitas'] ?>">
+                                data-loyalitas="<?= $row['loyalitas'] ?>"
+                                data-tanggal_pendaftaran="<?= $row['tanggal_pendaftaran'] ?>">
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['no_telepon']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['nama']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['email']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['alamat']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['loyalitas']) ?></td>
+                                <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['tanggal_pendaftaran']) ?></td>
                                 <td class="py-2 px-4 border-b">
                                     <div class="flex space-x-2">
                                         <button class="update-button bg-green-500 text-white px-3 py-1 rounded-lg">Update</button>

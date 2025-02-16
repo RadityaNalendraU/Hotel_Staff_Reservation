@@ -12,7 +12,7 @@
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-bold mb-4">Reservasi Hotel</h2>
 
-    <form action="submit_reservasi.php" method="POST">
+    <form id="reservation-form">        
         <!-- Nomor Telepon + Tombol Search -->
         <label class="block mb-2 font-semibold">Nomor Telepon</label>
         <div class="flex">
@@ -70,6 +70,29 @@
 
 <!-- JavaScript -->
 <script>
+    document.getElementById("reservation-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Mencegah reload halaman
+
+        const formData = new FormData(this); // Mengambil data dari form
+
+        fetch('submit_reservasi.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showPopup("✅ Reservasi berhasil!");
+            } else {
+                showPopup("❌ " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showPopup("❌ Terjadi kesalahan saat mengirim data.");
+        });
+    });
+
     // Fetch room types on page load
     window.onload = function() {
         fetch('fetch_rooms.php?get_types=true')
@@ -181,7 +204,7 @@
 </body>
 </html>
 <?php
-require 'pages/koneksi.php';
+require __DIR__ . '/../pages/koneksi.php';
 
 if (isset($_GET['type'])) {
     $roomType = $_GET['type'];

@@ -165,9 +165,9 @@
             <h2 class="text-2xl font-bold mb-6">Pembayaran</h2>
             <div class="flex mb-4">
                 <div class="w-full" id="input-container">
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="ID Pembayaran, ID Reservasi, atau Nomor Telepon">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="ID Pembayaran, ID Reservasi, atau Nomor Telepon" hidden>
                 </div>
-                <button id="add-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4">
+                <button id="add-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4" hidden>
                     Cari
                 </button>
             </div>
